@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+
+<launch>
+    <arg name="veh" default="wamv" />
+    <node pkg="hrvo" type="wamv_hrvo_multi.py" name="wamv_hrvo_multi" output="screen" />
+
+</launch>

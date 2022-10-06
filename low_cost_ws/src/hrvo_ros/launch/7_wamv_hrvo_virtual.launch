@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+
+<launch>
+    <arg name="veh" default="wamv" />
+    <node pkg="hrvo" type="7_wamv_hrvo_virtual_velocity_control.py" name="wamv_7_hrvo" output="screen" />
+
+</launch>

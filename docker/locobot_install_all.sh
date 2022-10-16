@@ -126,7 +126,7 @@ if [ $ROS_NAME == "kinetic" ]; then
 		sudo apt -y install python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential
 		sudo apt -y install python-rosdep
 		sudo rosdep init
-		rosdep update
+		rosdep update --include-eol-distros
 		echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
 	else
 		echo "ros-kinetic-desktop-full is already installed";
@@ -144,7 +144,7 @@ else
 		sudo apt -y install python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential
 		sudo apt -y install python-rosdep
 		sudo rosdep init
-		rosdep update
+		rosdep update --include-eol-distros
 		echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
 	else
 		echo "ros-melodic-desktop-full is already installed";
@@ -291,7 +291,7 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/thirdparty" ]; then
 fi
 
 cd $LOCOBOT_FOLDER
-rosdep update 
+rosdep update --include-eol-distros
 rosdep install --from-paths src/pyrobot -i -y
 cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/install
 chmod +x install_orb_slam2.sh

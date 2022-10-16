@@ -1,0 +1,36 @@
+
+anchor12:
+  id: 0x6a45
+  x: 0
+  y: 3050
+  z: 950
+
+anchor8:
+  id: 0x6a27
+  x: 0
+  y: 5170
+  z: 950
+
+anchor9:
+  id: 0x6a4a
+  x: 0
+  y: 6970
+  z: 950
+
+anchor15:
+  id: 0x6a21
+  x: 6500
+  y: 2750
+  z: 950
+
+anchor14:
+  id: 0x6a42
+  x: 6500
+  y: 4720
+  z: 950
+
+anchor11:
+  id: 0x6a7a
+  x: 6500
+  y: 6570
+  z: 950

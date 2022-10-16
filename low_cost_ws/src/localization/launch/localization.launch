@@ -1,0 +1,13 @@
+<launch>
+
+  <node pkg="localization" type='localization.py' name='localization' output="screen"/>
+  <node pkg="localization" type='odom_cov.py' name='odom_cov'/>
+  <node pkg="localization" type='imu_cov.py' name='imu_cov'/>
+
+  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization" output="screen">
+    <rosparam command="load" file="$(find localization)/config/robot_localization.yaml"/>
+    <param name="world_frame" value="map" />
+    <param name="odom_frame" value="odom" />
+    <param name="base_link_frame" value="base_link" />
+  </node>
+</launch>

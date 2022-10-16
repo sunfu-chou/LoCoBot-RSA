@@ -27,7 +27,7 @@ path = '/home/joe/LoCoBot-RSA/low_cost_ws/src/hrvo_ros/src/waypoints.txt'
 with open(path,'r') as f:
     for line in f.readlines():
         p = line.split(' ')
-        waypoints.append([int(p[0]),int(p[1])])
+        waypoints.append([float(p[0]),float(p[1])])
 
 # hrvo function
 def dist(p1, p2):
@@ -75,7 +75,7 @@ class BoatHRVO(object):
         self.ws_model['boundary'] = []
 
         # subscriber
-        self.odom_sub = rospy.Subscriber("/test/odom", Odometry, self.cb_odom)
+        self.odom_sub = rospy.Subscriber("/odometry/filtered", Odometry, self.cb_odom)
 
         #publisher
         self.pub_v = rospy.Publisher("/cmd_vel_mux/input/teleop", Twist, queue_size=1)
@@ -83,8 +83,8 @@ class BoatHRVO(object):
         # initiallize robot status
         self.boat_odom = Odometry()
         self.yaw = 0
-        self.goal = [0,0]
-        self.velocity_detect = [0,0]
+        self.goal = []
+        self.velocity_detect = [[0,0]]
         self.position = []
 
         self.begin = False
@@ -97,12 +97,13 @@ class BoatHRVO(object):
         self.rate = rospy.Duration(0.1)
 
         while not rospy.is_shutdown():
-            self.cb_hrvo()
+            self.cb_hrvo()  
             rospy.sleep(self.rate)
 
     def cb_odom(self, msg):
 
         self.boat_odom = msg
+        #rospy.loginfo("odom")
         # add start point into waypoints and solve TSP
         if not self.begin:
             start_point = [msg.pose.pose.position.x, msg.pose.pose.position.y]
@@ -110,6 +111,7 @@ class BoatHRVO(object):
             distance_matrix = distanceGenerate(waypoints)
             permutation_sa, distance_sa = solve_tsp_simulated_annealing(distance_matrix)
             self.result_waypoints = sortWaypoint(permutation_sa, waypoints)
+            self.goal.append(self.result_waypoints[0])
             self.begin = True
 
     def cb_hrvo(self):
@@ -118,15 +120,16 @@ class BoatHRVO(object):
                 self.update_all()
                 v_des = compute_V_des(self.position, self.goal, self.v_max)
                 self.velocity = RVO_update(self.position, v_des, self.velocity_detect, self.ws_model)
-                dis, angle = self.process_ang_dis(self.velocity[0], self.velocity[1], self.yaw)
+                dis, angle = self.process_ang_dis(self.velocity[0][0], self.velocity[0][1], self.yaw)
         
                 cmd = Twist()
-                cmd.linear.x = dis * 0.3
-                cmd.angular.z = angle * 0.95
+                cmd.linear.x = dis * 0.2
+                cmd.angular.z = angle * 2
                 self.cmd_drive = cmd
+                #print(cmd)
                 self.pub_v.publish(self.cmd_drive)
-            else:
-                rospy.loginfo(" Waiting for odom")
+            #else:
+            #   rospy.loginfo(" Waiting for odom")
         else:
             cmd = Twist()
             cmd.linear.x = 0
@@ -138,14 +141,16 @@ class BoatHRVO(object):
 
     # calculate distance between robot and current goal
     def goal_dist(self):
-        dist = math.sqrt((self.goal[0] - self.position[0])**2 + (self.goal[1] - self.position[1])**2)
+        dist = math.sqrt((self.goal[0][0] - self.position[0][0])**2 + (self.goal[0][1] - self.position[0][1])**2)
         return dist
         
     def update_all(self):
        # update position
-        self.position = [self.boat_odom.pose.pose.position.x,
-                         self.boat_odom.pose.pose.position.y]
-
+        self.position = []
+        pos = [self.boat_odom.pose.pose.position.x,
+               self.boat_odom.pose.pose.position.y]
+        self.position.append(pos)
+        
         # update orientation
         quaternion = (self.boat_odom.pose.pose.orientation.x,
                       self.boat_odom.pose.pose.orientation.y,
@@ -154,27 +159,34 @@ class BoatHRVO(object):
 
         euler = tf.transformations.euler_from_quaternion(quaternion)
         self.yaw = euler[2]
+        
 
         # update velocity
-        self.velocity_detect = [self.boat_odom.twist.twist.linear.x,
-                                self.boat_odom.twist.twist.linear.y]
+        self.velocity_detect[0] = [self.boat_odom.twist.twist.linear.x,
+                                   self.boat_odom.twist.twist.linear.y]
 
-        if(self.goal_dist() < 0.5):
+        if(self.goal_dist() < 0.3):
             # goal reached
             self.waypoint_index+=1
 
             # all points reached
-            if(self.waypoint_index == (len(waypoints)+1)):
+            if(self.waypoint_index == (len(waypoints))):
                 self.waypoint_index = -1
                 return
-
-            self.goal = self.result_waypoints[self.waypoint_index]
-            rospy.loginfo("Moving to No.{} point".format(self.waypoint_index))
+            else:
+                self.goal = []
+                self.goal.append(self.result_waypoints[self.waypoint_index])
+                rospy.loginfo("Moving to No.{} point".format(self.waypoint_index) + " at {}".format(self.goal[0]))
 
     def process_ang_dis(self, vx, vy, yaw):
         dest_yaw = math.atan2(vy, vx)
 
         angle = dest_yaw - yaw
+        #print(self.goal)
+        #print(vy, vx)
+        #print(yaw)
+        #print(dest_yaw, yaw)
+
         if angle > np.pi:
             angle = angle-2*np.pi
 

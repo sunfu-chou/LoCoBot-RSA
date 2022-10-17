@@ -23,7 +23,7 @@ import time
 
 # read waypoint
 waypoints = []
-path = '/home/joe/LoCoBot-RSA/low_cost_ws/src/hrvo_ros/src/waypoints.txt'
+path = '/home/locobot/LoCoBot-RSA/low_cost_ws/src/hrvo_ros/src/waypoints.txt'
 with open(path,'r') as f:
     for line in f.readlines():
         p = line.split(' ')
@@ -128,8 +128,8 @@ class BoatHRVO(object):
                 self.cmd_drive = cmd
                 #print(cmd)
                 self.pub_v.publish(self.cmd_drive)
-            #else:
-            #   rospy.loginfo(" Waiting for odom")
+            else:
+              rospy.loginfo(" Waiting for odom")
         else:
             cmd = Twist()
             cmd.linear.x = 0

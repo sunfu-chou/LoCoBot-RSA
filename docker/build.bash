@@ -34,4 +34,4 @@ echo ""
 
 echo "=================================================="
 echo "Start building image"
-docker build --rm --no-cache -f "$DOCKERFILE_PATH" -t "${IMG}" $SCRIPT_PATH
+docker build --rm -f "$DOCKERFILE_PATH" -t "${IMG}" $SCRIPT_PATH

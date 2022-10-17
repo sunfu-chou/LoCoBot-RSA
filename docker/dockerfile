@@ -44,19 +44,17 @@ RUN apt-get -o Acquire::ForceIPv4=true update && apt-get -yq dist-upgrade \
     python3-dev \
     python3-pip \
     python3-setuptools \
+    apt-transport-https \
+    libglew-dev \
     && rosdep update --include-eol-distros
-
-COPY locobot_install_all.sh .
 
 RUN pip3 install --upgrade "pip < 21.0" \
     && pip3 install --upgrade setuptools \
     && pip3 install setuptools
 
-RUN apt install python3-dev -y
+COPY locobot_install_all.sh .
 
-RUN apt install apt-transport-https -yq
-
-RUN git clone https://github.com/stevenlovegrove/Pangolin.git --branch v0.5 --depth 1 \
+RUN git clone https://github.com/stevenlovegrove/Pangolin.git --branch v0.6 --depth 1 \
     && cd Pangolin \
     && mkdir build \
     && cd build \
@@ -66,3 +64,6 @@ RUN git clone https://github.com/stevenlovegrove/Pangolin.git --branch v0.5 --de
 
 RUN ./locobot_install_all.sh -t full -p 3 -l interbotix
 
+RUN pyenv_pyrobot_python3/bin/pip3 install netifaces python-tsp
+
+RUN echo "load_pyrobot_env" >> ~/.bashrc

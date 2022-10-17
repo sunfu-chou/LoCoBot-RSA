@@ -66,4 +66,14 @@ RUN ./locobot_install_all.sh -t full -p 3 -l interbotix
 
 RUN pyenv_pyrobot_python3/bin/pip3 install netifaces python-tsp
 
+RUN cd low_cost_ws \
+    && . /opt/ros/kinetic/setup.sh \
+    && catkin_make clean \
+    && ORBSLAM2_LIBRARY_PATH=/home/locobot/low_cost_ws/src/pyrobot/robots/LoCoBot/install/../thirdparty/ORB_SLAM2 \
+    catkin_make --cmake-args \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPYTHON_EXECUTABLE=/home/locobot/pyenv_pyrobot_python3/bin/python3 \
+            -DPYTHON_INCLUDE_DIR=/home/locobot/pyenv_pyrobot_python3/include/python3.6m \
+            -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so
+
 RUN echo "load_pyrobot_env" >> ~/.bashrc

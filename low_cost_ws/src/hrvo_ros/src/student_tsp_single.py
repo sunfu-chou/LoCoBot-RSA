@@ -109,7 +109,7 @@ class BoatHRVO(object):
     def cb_odom(self, msg):
 
         self.boat_odom = msg
-        #rospy.loginfo("odom")
+
         # add start point into waypoints and solve TSP
         if not self.begin:
             start_point = [msg.pose.pose.position.x, msg.pose.pose.position.y]
@@ -127,20 +127,26 @@ class BoatHRVO(object):
                 v_des = compute_V_des(self.position, self.goal, self.v_max)
                 self.velocity = RVO_update(self.position, v_des, self.velocity_detect, self.ws_model)
                 dis, angle = self.process_ang_dis(self.velocity[0][0], self.velocity[0][1], self.yaw)
-        
-                cmd = Twist()
-                cmd.linear.x = dis * 0.2
-                cmd.angular.z = angle * 2
-                self.cmd_drive = cmd
-                #print(cmd)
+                ###################################TODO############################################
+                # update linear velocity : dis & angular velocity : angle 
+                # multiply linear velocity by factor < 0.4
+                # multiply angular velocity by factor 2
+
+
+
+                ###################################################################################
                 self.pub_v.publish(self.cmd_drive)
+                
             else:
               rospy.loginfo(" Waiting for odom")
         else:
-            cmd = Twist()
-            cmd.linear.x = 0
-            cmd.angular.z = 0
-            self.cmd_drive = cmd
+            ##################################TODO############################################
+            # update linear velocity : 0 & angular velocity : 0
+            
+
+
+
+            #################################################################################
             self.pub_v.publish(self.cmd_drive)
             rospy.loginfo(" All points reached!!")
 
@@ -151,26 +157,27 @@ class BoatHRVO(object):
         return dist
         
     def update_all(self):
+
+        #################################TODO#######################################
        # update position
+       # hint : in self.boat_odom
         self.position = []
-        pos = [self.boat_odom.pose.pose.position.x,
-               self.boat_odom.pose.pose.position.y]
+        pos = [ , ]
         self.position.append(pos)
         
         # update orientation
-        quaternion = (self.boat_odom.pose.pose.orientation.x,
-                      self.boat_odom.pose.pose.orientation.y,
-                      self.boat_odom.pose.pose.orientation.z,
-                      self.boat_odom.pose.pose.orientation.w)
+        # hint : in self.boat_odom 
+        quaternion = ( , , , )
 
-        euler = tf.transformations.euler_from_quaternion(quaternion)
+        # hint : transform quaternion to euler by using tf function
+        euler = 
         self.yaw = euler[2]
         
 
         # update velocity
-        self.velocity_detect[0] = [self.boat_odom.twist.twist.linear.x,
-                                   self.boat_odom.twist.twist.linear.y]
-
+        # hint : in self.boat_odom
+        self.velocity_detect[0] = [ , ]
+        ###############################################################################
         if(self.goal_dist() < 0.3):
             # goal reached
             self.waypoint_index+=1
@@ -185,23 +192,20 @@ class BoatHRVO(object):
                 rospy.loginfo("Moving to No.{} point".format(self.waypoint_index) + " at {}".format(self.goal[0]))
 
     def process_ang_dis(self, vx, vy, yaw):
-        dest_yaw = math.atan2(vy, vx)
+        ######################### TODO ###################################
+        # compute destination angle
+        # hint : math.atan2( , )
+        
 
-        angle = dest_yaw - yaw
-        #print(self.goal)
-        #print(vy, vx)
-        #print(yaw)
-        #print(dest_yaw, yaw)
+        # compute angle difference of destination angle and current angle
 
-        if angle > np.pi:
-            angle = angle-2*np.pi
+        
+        # make sure -np.pi< angle < np.pi
+        
 
-        if angle < -np.pi:
-            angle = angle+2*np.pi
-
+        ####################################################################
         angle = angle/np.pi
         dis = math.sqrt(vx**2+vy**2)
-
         dis = max(min(dis, 1), -1)
         angle = max(min(angle, 1), -1)
         return dis, angle

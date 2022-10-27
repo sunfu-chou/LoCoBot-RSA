@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from turtle import distance
 import rospy
 from nav_msgs.msg import Odometry
 from RVO import RVO_update, reach, compute_V_des, reach

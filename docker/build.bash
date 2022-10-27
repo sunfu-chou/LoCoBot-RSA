@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-REPOSITORY="sunfuchou/locobot_rsa"
-TAG="nuc_amd64"
+REPOSITORY="sunfuchou/rsa"
+TAG="amd64"
 
 IMG="${REPOSITORY}:${TAG}"
 

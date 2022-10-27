@@ -1,6 +1,8 @@
 <launch>
 
-  <node pkg="localization" type='localization.py' name='localization' output="screen"/>
+  <node pkg="localization" type='localization.py' name='localization' output="screen">
+    <param name="config_file_path" value="$(find localization)/config/ee632.yaml"/>
+  </node>
   <node pkg="localization" type='odom_cov.py' name='odom_cov'/>
   <node pkg="localization" type='imu_cov.py' name='imu_cov'/>
 

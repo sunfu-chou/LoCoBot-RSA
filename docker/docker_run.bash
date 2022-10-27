@@ -2,9 +2,9 @@
 
 ARGS=("$@")
 
-NAME=locobot_rsa
-REPOSITORY="sunfuchou/locobot_rsa"
-TAG="nuc_amd64"
+NAME=rsa
+REPOSITORY="sunfuchou/rsa"
+TAG="amd64"
 REPO_NAME=LoCoBot-RSA
 
 IMG="${REPOSITORY}:${TAG}"
@@ -31,13 +31,13 @@ docker run \
     -e QT_X11_NO_MITSHM=1 \
     -e XAUTHORITY=$XAUTH \
     -v "$XAUTH:$XAUTH" \
-    -v "/home/$USER/${REPO_NAME}:/home/locobot/${REPO_NAME}" \
+    -v "/home/$USER/${REPO_NAME}:/home/rsa/${REPO_NAME}" \
     -v "/tmp/.X11-unix:/tmp/.X11-unix" \
     -v "/etc/localtime:/etc/localtime:ro" \
     -v "/dev:/dev" \
     -v "/var/run/docker.sock:/var/run/docker.sock" \
     --user "root:root" \
-    --workdir "/home/locobot/${REPO_NAME}" \
+    --workdir "/home/rsa/${REPO_NAME}" \
     --name "${NAME}" \
     --network host \
     --privileged \

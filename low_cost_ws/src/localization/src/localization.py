@@ -24,7 +24,7 @@ distances = Float64MultiArray()
 def timer_callback(e):
   now = rospy.Time.now()
   
-  uwb.localize_3D()
+  uwb.localize_2_5D()
   uwb.range_all()
   pose.header.stamp = now
   pose.header.frame_id = 'map'

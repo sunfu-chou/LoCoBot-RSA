@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <arg name="port_test" default="/dev/ttyUSB0" />
+  <rosparam command="load" file="$(find xbee_communication)/config/xbee_joy.yaml" />
+  <rosparam command="load" file="$(find xbee_communication)/config/robot_xbee.yaml" />
+
+  <test test-name="XBeeTest" pkg="xbee_communication" type="duckiepond_xbee_test.py">
+    <param name="port_test" value="$(arg port_test)" />
+  </test>
+</launch>

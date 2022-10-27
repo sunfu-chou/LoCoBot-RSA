@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<launch>
+  <arg name="port" default="/dev/ttyUSB0" />
+  <arg name="I_am_master" default="False" />
+  <arg name="input_topic" default="/joy" />
+  <arg name="output_topic" default="joy_teleop/joy" />
+  <arg name="remote_robot" default="A" />
+  <rosparam command="load" file="$(find xbee_communication)/config/xbee_joy.yaml" />
+
+
+  <node name="xbee_joy" pkg="xbee_communication" type="xbee_joy.py" output="screen" required="true">
+    <param name="port" value="$(arg port)" />
+    <param name="I_am_master" value="$(arg I_am_master)" />
+    <param name="input_topic" value="$(arg input_topic)" />
+    <param name="output_topic" value="$(arg output_topic)" />
+    <param name="remote_robot" value="$(arg remote_robot)" />
+  </node>
+
+
+</launch>

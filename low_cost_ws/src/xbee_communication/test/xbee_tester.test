@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <arg name="port" default="/dev/ttyUSB0" />
+  <arg name="port_test" default="/dev/ttyUSB1" />
+
+  <test test-name="XBeeTester_node" pkg="xbee_communication" type="xbee_tester.py">
+    <param name="port_test" value="$(arg port_test)" />
+  </test>
+
+  <include file="$(find xbee_communication)/launch/xbee_joy.launch">
+    <arg name="port" value="$(arg port)" />
+  </include>
+</launch>

@@ -1,2 +1,0 @@
-string address
-float32 xbee_trans_speed

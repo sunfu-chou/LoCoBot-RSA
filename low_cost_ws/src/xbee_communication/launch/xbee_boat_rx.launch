@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<launch>
+  <arg name="port" default="/dev/ttyUSB0" />
+  <arg name="veh" default=""/>
+  <arg name="I_am_base_station" default="False" />
+  <arg name="output_topic" default="/joy" />
+  
+
+
+
+  <node name="xbee_server_laptop_1" pkg="xbee_communication" type="xbee_boat_rx.py" output="screen" required="true">
+    <param name="port" value="$(arg port)" />
+    <param name="I_am_base_station" value="$(arg I_am_base_station)" />
+
+
+  </node>
+
+
+</launch>

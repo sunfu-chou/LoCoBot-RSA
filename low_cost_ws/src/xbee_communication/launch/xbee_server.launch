@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<launch>
+  <arg name="port" default="/dev/ttyUSB0" />
+  <arg name="veh" default=""/>
+  <arg name="I_am_base_station" default="False" />
+  <arg name="use_husky1" default="True" />
+  <arg name="use_husky2" default="True" />
+  <arg name="use_jackal1" default="false" />
+  <arg name="use_jackal2" default="false" />
+
+  <arg name="sub_points" default="map_part" />
+  <arg name="sub_pose" default="slam_pose" />
+  <arg name="pub_goal" default="/move_base_simple/goal" />
+  <arg name="sub_odom" default="odom" />
+
+
+  <rosparam command="load" file="$(find xbee_communication)/config/robot_xbee.yaml" />
+
+  <node name="xbee_server" pkg="xbee_communication" type="xbee_server.py" output="screen" required="true">
+    <param name="port" value="$(arg port)" />
+    <param name="I_am_base_station" value="$(arg I_am_base_station)" />
+    <param name="use_husky1" value="$(arg use_husky1)" />
+    <param name="use_husky2" value="$(arg use_husky2)" />
+    <param name="use_jackal1" value="$(arg use_jackal1)" />
+    <param name="use_jackal2" value="$(arg use_jackal2)" />
+
+    <remap from="map_part" to="$(arg sub_points)"/>
+    <remap from="slam_pose" to="$(arg sub_pose)"/>
+    <remap from="pub_goal" to="$(arg pub_goal)"/>
+  </node>
+
+  <node name="Odom_to_Pose" pkg="xbee_communication" type="odometry_to_posestamp.py" output="screen" required="true">
+    <param name="odom" value="$(arg sub_odom)" />
+    <param name="pose" value="$(arg sub_pose)" />
+  </node>
+
+
+</launch>

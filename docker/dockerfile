@@ -1,14 +1,13 @@
-FROM osrf/ros:kinetic-desktop-full
+FROM osrf/ros:noetic-desktop-full
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
-ENV ROS_DISTRO kinetic
+ENV ROS_DISTRO noetic
 
 ENV SHELL=/bin/bash \
-    USER=locobot \
+    USER=rsa \
     UID=1000
-
 
 RUN adduser --disabled-password \
     --gecos "Default user" \
@@ -22,7 +21,7 @@ WORKDIR /home/${USER}
 RUN cp /root/.bashrc ~/.bashrc
 
 RUN echo "root:root" | chpasswd
-RUN echo "${USER}:locobot" | chpasswd
+RUN echo "${USER}:rsa" | chpasswd
 
 RUN apt-get -o Acquire::ForceIPv4=true update && apt-get -yq dist-upgrade \
     && apt-get -o Acquire::ForceIPv4=true install -yq --no-install-recommends \
@@ -45,35 +44,14 @@ RUN apt-get -o Acquire::ForceIPv4=true update && apt-get -yq dist-upgrade \
     python3-pip \
     python3-setuptools \
     apt-transport-https \
-    libglew-dev \
-    && rosdep update --include-eol-distros
+    libglew-dev
 
-RUN pip3 install --upgrade "pip < 21.0" \
+RUN pip3 install --upgrade pip \
     && pip3 install --upgrade setuptools \
-    && pip3 install setuptools
+    && pip3 install python_tsp pypozyx
 
-COPY locobot_install_all.sh .
+RUN apt-get -o Acquire::ForceIPv4=true update && apt-get -yq dist-upgrade \
+    && apt-get -o Acquire::ForceIPv4=true install -yq --no-install-recommends \
+    ros-${ROS_DISTRO}-robot-localization
 
-RUN git clone https://github.com/stevenlovegrove/Pangolin.git --branch v0.6 --depth 1 \
-    && cd Pangolin \
-    && mkdir build \
-    && cd build \
-    && cmake .. \
-    && cmake --build . \
-    && make install
-
-RUN ./locobot_install_all.sh -t full -p 3 -l interbotix
-
-RUN pyenv_pyrobot_python3/bin/pip3 install netifaces python-tsp
-
-RUN cd low_cost_ws \
-    && . /opt/ros/kinetic/setup.sh \
-    && catkin_make clean \
-    && ORBSLAM2_LIBRARY_PATH=/home/locobot/low_cost_ws/src/pyrobot/robots/LoCoBot/install/../thirdparty/ORB_SLAM2 \
-    catkin_make --cmake-args \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DPYTHON_EXECUTABLE=/home/locobot/pyenv_pyrobot_python3/bin/python3 \
-            -DPYTHON_INCLUDE_DIR=/home/locobot/pyenv_pyrobot_python3/include/python3.6m \
-            -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so
-
-RUN echo "load_pyrobot_env" >> ~/.bashrc
+RUN echo 'source /opt/ros/noetic/setup.bash' >> ~/.bashrc

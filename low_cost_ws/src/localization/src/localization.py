@@ -8,10 +8,6 @@ from uwb import UWB
 import time
 
 uwb = UWB()
-uwb.connect()
-uwb.height = 950
-uwb.load_env_config("/home/locobot/low_cost_ws/src/localization/config/ee632.yaml")
-uwb.write_env_config()
 
 pose = PoseWithCovarianceStamped()
 distances = Float64MultiArray()
@@ -28,7 +24,7 @@ distances = Float64MultiArray()
 def timer_callback(e):
   now = rospy.Time.now()
   
-  uwb.localize_3D()
+  uwb.localize_2_5D()
   uwb.range_all()
   pose.header.stamp = now
   pose.header.frame_id = 'map'
@@ -51,6 +47,10 @@ def timer_callback(e):
   
 if __name__ == '__main__':
   rospy.init_node('uwb_localization',anonymous=False)
+  uwb.load_env_config(rospy.get_param('~config_file_path'))
+  uwb.connect()
+  uwb.height = 950
+  uwb.write_env_config()
   pose_pub = rospy.Publisher('uwb_pose', PoseWithCovarianceStamped, queue_size=10)
   distances_pub = rospy.Publisher('uwb_distances', Float64MultiArray, queue_size=10)
   localization_timer = rospy.Timer(rospy.Duration(0.05), timer_callback)

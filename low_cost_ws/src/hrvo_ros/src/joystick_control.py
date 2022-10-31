@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 import rospy
 from sensor_msgs.msg import Joy
 from std_msgs.msg import *
@@ -24,11 +24,11 @@ class Base_controller:
   def JoyCallback(self, msg):
     if msg.buttons[7] == 1:
         if self.control_flag == False:
-          print "joystick mode"
+          print("joystick mode")
         self.control_flag = True
     if msg.buttons[6] == 1:
         if self.control_flag == True:
-          print "auto mode"
+          print("auto mode")
         self.control_flag = False
 
     if self.control_flag == True:

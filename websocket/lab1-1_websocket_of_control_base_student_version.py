@@ -24,6 +24,7 @@ def key_publish():
     ###########code here #############
     #use socket.ros_socket() generate a connection to your rosbridge server
     #generate a publisher
+    #topic name is 'cmd_vel_mux/input/teleop', type is 'geometry_msgs/Twist'
     ##################################
     
     while True:

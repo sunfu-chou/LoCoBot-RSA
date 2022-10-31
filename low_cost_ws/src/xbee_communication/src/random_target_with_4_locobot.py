@@ -36,7 +36,7 @@ pose3 = {'x':0, 'y':500}
 pose4 = {'x':500, 'y':500}
 
 thread = []
-locobot_ip = ['0.0.0.0', '140.113.148.104', '192.168.1.3', '192.168.1.4']
+locobot_ip = ['192.168.50.20', '192.168.50.60', '192.168.50.40', '192.168.50.90']
 
 
 class robot_status(object):
@@ -82,33 +82,34 @@ class robot_status(object):
 
         self.Markers = MarkerArray()
         self.Markers.markers = []
-        self.point = 20
+        self.point = 5
         self.target = targetpoint()
         array = [[0.0 for a in range (3)] for b in range (self.point)]
+        
+        array = [[3, 3, 0], [4.0, 3.6, 0], [5.5, 2.0, 0], [5.5, 5.0, 0], [1.8, 5.0, 0]]
+
         for i in range(self.point):
-            array[i][0] = float(random.randrange(35,225,3))
-            array[i][1] = float(random.randrange(-185,-145,3))
             self.target.data_x.append(array[i][0])
             self.target.data_y.append(array[i][1])
             self.target.data_flag.append(0)
-            self.marker = Marker()
-            self.marker.header.stamp = rospy.Time.now()
-            self.marker.header.frame_id = 'odom'
-            self.marker.type = self.marker.SPHERE
-            self.marker.action = self.marker.ADD
-            self.marker.pose.orientation.w = 1
-            self.marker.pose.position.x = array[i][0] 
-            self.marker.pose.position.y = array[i][1]
-            self.marker.id = i
-            i = i+1
-            self.marker.scale.x = 1
-            self.marker.scale.y = 1
-            self.marker.scale.z = 1
-            self.marker.color.a = 1.0
-            self.marker.color.r = 0
-            self.marker.color.g = 1
-            self.marker.color.b = 0
-            self.Markers.markers.append(self.marker)
+            # self.marker = Marker()
+            # self.marker.header.stamp = rospy.Time.now()
+            # self.marker.header.frame_id = 'odom'
+            # self.marker.type = self.marker.SPHERE
+            # self.marker.action = self.marker.ADD
+            # self.marker.pose.orientation.w = 1
+            # self.marker.pose.position.x = array[i][0] 
+            # self.marker.pose.position.y = array[i][1]
+            # self.marker.id = i
+            # i = i+1
+            # self.marker.scale.x = 1
+            # self.marker.scale.y = 1
+            # self.marker.scale.z = 1
+            # self.marker.color.a = 1.0
+            # self.marker.color.r = 0
+            # self.marker.color.g = 1
+            # self.marker.color.b = 0
+            # self.Markers.markers.append(self.marker)
         self.robot_status_data = Float32MultiArray(data = array)
 
         
@@ -142,21 +143,24 @@ class robot_status(object):
         global pose1
         pose1['x'] = message['pose']['pose']['position']['x']
         pose1['y'] = message['pose']['pose']['position']['y']
+        print('1')
+        print(pose1)
 
     def pose1(self, locobot_ip):
         socket_sensor = socket.ros_socket(locobot_ip, 9090)
-        socket_sensor.subscriber('/odomtest1' , self.pose1_callback, 10)
+        socket_sensor.subscriber('/uwb_pose' , self.pose1_callback, 500)
 
     ####pose2####
     def pose2_callback(self, message):
         global pose2
-        print('pose2_get')
         pose2['x'] = message['pose']['pose']['position']['x']
         pose2['y'] = message['pose']['pose']['position']['y']
+        print('2')
+        print(pose2)
 
     def pose2(self, locobot_ip):
         socket_sensor = socket.ros_socket(locobot_ip, 9090)
-        socket_sensor.subscriber('/odomtest2' , self.pose2_callback, 100)
+        socket_sensor.subscriber('/uwb_pose' , self.pose2_callback, 500)
     
     ####pose3####
     def pose3_callback(self, message):
@@ -166,7 +170,7 @@ class robot_status(object):
 
     def pose3(self, locobot_ip):
         socket_sensor = socket.ros_socket(locobot_ip, 9090)
-        socket_sensor.subscriber('/' , self.pose3_callback, 100)
+        socket_sensor.subscriber('/uwb_pose' , self.pose3_callback, 10)
 
     ####pose4####
     def pose4_callback(self, message):
@@ -176,7 +180,7 @@ class robot_status(object):
 
     def pose4(self, locobot_ip):
         socket_sensor = socket.ros_socket(locobot_ip, 9090)
-        socket_sensor.subscriber('/' , self.pose4_callback, 100)
+        socket_sensor.subscriber('/uwb_pose', self.pose4_callback, 10)
 
 ############ location calculation part################
 
@@ -188,6 +192,7 @@ class robot_status(object):
                 self.wamv1_target_point = self.find_closest_available_point(float(pose1['x']), float(pose1['y']),self.robot_status_data.data)
             self.robot_status_data.data[self.wamv1_target_point][2] = 1.0
             self.target.data_flag[self.wamv1_target_point] = 1
+            
             self.wamv1_has_target = 1
 
         pose = PoseStamped()
@@ -197,7 +202,7 @@ class robot_status(object):
         pose.pose.position.y = self.robot_status_data.data[self.wamv1_target_point][1]
         self.pub_wamv1.publish(pose) 
         dis = math.sqrt(math.pow(float(pose1['x'])- pose.pose.position.x,2)+math.pow(float(pose1['y'])- pose.pose.position.y,2))
-        if dis< self.r:
+        if dis < self.r:
             print("wamv1 reach")
             self.wamv1_has_target = 0
             self.robot_status_data.data[self.wamv1_target_point][2] = 2.0

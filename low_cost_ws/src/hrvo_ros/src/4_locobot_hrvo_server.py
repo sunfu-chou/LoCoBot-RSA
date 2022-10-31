@@ -7,7 +7,7 @@ from std_srvs.srv import Empty
 from geometry_msgs.msg import Twist, PoseStamped
 from sensor_msgs.msg import Joy
 from nav_msgs.msg import Odometry
-from hrvo.RVO import RVO_update, reach, compute_V_des, reach
+from RVO import RVO_update, reach, compute_V_des, reach
 from gazebo_msgs.msg import ModelState
 from gazebo_msgs.srv import SetModelState, GetModelState
 import math
@@ -21,7 +21,7 @@ import time
 from arg_robotics_tools  import websocket_rosbridge as socket
 import threading
 ###############global variable###########
-locobot_ip = ['192.168.1.1', '192.168.1.2', '192.168.1.3', '192.168.1.4']
+locobot_ip = ['192.168.50.20', '192.168.50.60', '192.168.50.40', '192.168.50.90']
 thread = []
 
 
@@ -94,15 +94,15 @@ class BoatHRVO(object):
         self.v_max = [1 for i in range(4)]
 
 
-        thread.append(threading.thread(target = self.publish, args = (0)))
-        thread.append(threading.thread(target = self.publish, args = (1)))
-        thread.append(threading.thread(target = self.publish, args = (2)))
-        thread.append(threading.thread(target = self.publish, args = (3)))
+        thread.append(threading.Thread(target = self.publish_twist, args = (0,), daemon=True))
+        thread.append(threading.Thread(target = self.publish_twist, args = (1,), daemon=True))
+        #thread.append(threading.Thread(target = self.publish_twist , args = (2,), daemon=True))
+        #thread.append(threading.Thread(target = self.publish_twist, args = (3,), daemon=True))
 
-        thread.append(threading.thread(target = self.robot_odom, args = (locobot_ip[0], 0)))
-        thread.append(threading.thread(target = self.robot_odom, args = (locobot_ip[1], 1)))
-        thread.append(threading.thread(target = self.robot_odom, args = (locobot_ip[2], 2)))
-        thread.append(threading.thread(target = self.robot_odom, args = (locobot_ip[3], 3)))
+        thread.append(threading.Thread(target = self.robot_odom, args = (locobot_ip[0], 0), daemon=True))
+        thread.append(threading.Thread(target = self.robot_odom, args = (locobot_ip[1], 1), daemon=True))
+        #thread.append(threading.Thread(target = self.robot_odom, args = (locobot_ip[2], 2), daemon=True))
+        #thread.append(threading.Thread(target = self.robot_odom, args = (locobot_ip[3], 3), daemon=True))
         
         for i in thread:
             i.start()
@@ -112,13 +112,13 @@ class BoatHRVO(object):
     def robot_odom(self, ip, boat_id):
         robot_socket = socket.ros_socket(ip, 9090)
         if boat_id == 0:
-            robot_socket.subscriber('/odom', self.odom_callback1, 100)
+            robot_socket.subscriber('/odometry/filtered', self.odom_callback1, 100)
         elif boat_id == 1:
-            robot_socket.subscriber('/odom', self.odom_callback2, 100)
+            robot_socket.subscriber('/odometry/filtered', self.odom_callback2, 100)
         elif boat_id == 2:
-            robot_socket.subscriber('/odom', self.odom_callback3, 100)
+            robot_socket.subscriber('/odometry/filtered', self.odom_callback3, 100)
         elif boat_id == 3:
-            robot_socket.subscriber('/odom', self.odom_callback4, 100)
+            robot_socket.subscriber('/odometry/filtered', self.odom_callback4, 100)
 
 
     def odom_callback1(message):
@@ -170,12 +170,12 @@ class BoatHRVO(object):
         #self.pub_v2.publish(self.cmd_drive[2])
         #self.pub_v3.publish(self.cmd_drive[3])
 
-    def publish(self, robot_number):
+    def publish_twist(self, robot_number):
         global locobot_ip
         client = socket.ros_socket(locobot_ip[robot_number], 9090)
-        pub_v = client.publisher('/topicname', 'geometry_msgs/Twist')
+        pub_v = client.publisher('/cmd_vel_mux/input/teleop', 'geometry_msgs/Twist')
         while True:
-            client.pub(self.cmd_drive[robot_number])
+            client.pub(pub_v, self.cmd_drive[robot_number])
             time.sleep(0.05)
 
 
@@ -224,15 +224,15 @@ class BoatHRVO(object):
         self.position = []
         for i in range(4):
             # update position
-            pos = [self.boat_odom[i]['pose']['pose']['position.x'],
-                   self.boat_odom[i]['pose']['pose']['position.y']]
+            pos = [self.boat_odom[i]['pose']['pose']['position']['x'],
+                   self.boat_odom[i]['pose']['pose']['position']['y']]
             self.position.append(pos)
 
             # update orientation
-            quaternion = (self.boat_odom[i]['pose']['pose']['orientation.x'],
-                          self.boat_odom[i]['pose']['pose']['orientation.y'],
-                          self.boat_odom[i]['pose']['pose']['orientation.z'],
-                          self.boat_odom[i]['pose']['pose']['orientation.w'])
+            quaternion = (self.boat_odom[i]['pose']['pose']['orientation']['x'],
+                          self.boat_odom[i]['pose']['pose']['orientation']['y'],
+                          self.boat_odom[i]['pose']['pose']['orientation']['z'],
+                          self.boat_odom[i]['pose']['pose']['orientation']['w'])
             euler = tf.transformations.euler_from_quaternion(quaternion)
             self.yaw[i] = euler[2]
 

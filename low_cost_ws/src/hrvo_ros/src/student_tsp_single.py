@@ -149,6 +149,7 @@ class BoatHRVO(object):
             #################################################################################
             self.pub_v.publish(self.cmd_drive)
             rospy.loginfo(" All points reached!!")
+            rospy.sleep(rospy.Duration(2))
 
 
     # calculate distance between robot and current goal
@@ -181,6 +182,7 @@ class BoatHRVO(object):
         if(self.goal_dist() < 0.3):
             # goal reached
             self.waypoint_index+=1
+            rospy.sleep(rospy.Duration(2))
 
             # all points reached
             if(self.waypoint_index == (len(waypoints))):

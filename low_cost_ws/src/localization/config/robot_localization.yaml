@@ -1,7 +1,7 @@
 frequency: 50
 publish_tf: true
 two_d_mode: true
-odom0: odom/cov_
+odom0: odom/cov
 odom0_config: [false, false, false,
                false, false, false,
                true,  false, false,
@@ -17,7 +17,7 @@ imu0_config: [false, false, false,
               false, false, false,
               false, false, false,
               false, false, true,
-              true, true, false]
+              true, false, false]
 imu0_queue_size: 40
 imu0_differential: false
 imu0_relative: false

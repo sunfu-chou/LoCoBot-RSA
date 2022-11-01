@@ -49,7 +49,7 @@ class robot_status(object):
         self.machine = "wamv"
         self.boat = "boat"
         self.boat1 = "wamv"
-        self.r = 8
+        self.r = 0.3
 
         self.pub_status = rospy.Publisher( "/"+self.machine+"/target", targetpoint, queue_size=1)
         self.pub_points = rospy.Publisher("visualization_marker", MarkerArray, queue_size=1)
@@ -82,11 +82,11 @@ class robot_status(object):
 
         self.Markers = MarkerArray()
         self.Markers.markers = []
-        self.point = 5
+        self.point = 2
         self.target = targetpoint()
         array = [[0.0 for a in range (3)] for b in range (self.point)]
         
-        array = [[3, 3, 0], [4.0, 3.6, 0], [5.5, 2.0, 0], [5.5, 5.0, 0], [1.8, 5.0, 0]]
+        array = [[2.54, 3.059, 0], [2.539, 3.021, 0]] # [5.5, 2.0, 0], [5.5, 5.0, 0], [1.8, 5.0, 0]
 
         for i in range(self.point):
             self.target.data_x.append(array[i][0])

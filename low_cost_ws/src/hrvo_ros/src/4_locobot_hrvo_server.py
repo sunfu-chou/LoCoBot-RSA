@@ -34,13 +34,13 @@ class BoatHRVO(object):
     def __init__(self):
         self.node_name = rospy.get_name()
         rospy.loginfo("[%s] Initializing" % self.node_name)
-        self.frame = "odom"
-        self.frame1 = "odom"
-        self.auto = 1
+        #self.frame = "odom"
+        #self.frame1 = "odom"
+        #self.auto = 1
 
-        self.reset_world = rospy.ServiceProxy('/gazebo/reset_world', Empty)
-        self.reset_model = rospy.ServiceProxy(
-            '/gazebo/set_model_state', SetModelState)
+        #self.reset_world = rospy.ServiceProxy('/gazebo/reset_world', Empty)
+        #self.reset_model = rospy.ServiceProxy(
+        #    '/gazebo/set_model_state', SetModelState)
 
         # setup publisher
         #self.pub_v = rospy.Publisher("/wamv1/cmd_vel", Twist, queue_size=1)
@@ -80,7 +80,7 @@ class BoatHRVO(object):
         # initiallize HRVO environment
         self.ws_model = dict()
         # robot radius
-        self.ws_model['robot_radius'] = 2.5
+        self.ws_model['robot_radius'] = 0.5
         self.ws_model['circular_obstacles'] = []
         # rectangular boundary, format [x,y,width/2,heigth/2]
         self.ws_model['boundary'] = []
@@ -121,24 +121,19 @@ class BoatHRVO(object):
             robot_socket.subscriber('/odometry/filtered', self.odom_callback4, 100)
 
 
-    def odom_callback1(message):
-        global odom1
-        odom1 = message
+    def odom_callback1(self, message):
+        self.boat_odom[0] = message
 
-    def odom_callback2(message):
-        global odom2
-        odom2 = message
+    def odom_callback2(self,message):
+        self.boat_odom[1] = message
 
     
-    def odom_callback3(message):
-        global odom3
-        odom3 = message
+    def odom_callback3(self,message):
+        self.boat_odom[2] = message
   
 
-    def odom_callback4(message):
-        global odom4
-        odom4 = message
-
+    def odom_callback4(self,message):
+        self.boat_odom[3] = message
 
 
 
@@ -160,6 +155,8 @@ class BoatHRVO(object):
             cmd = {'linear':{'x':0.0, 'y':0.0, 'z':0.0},'angular':{'x':0.0, 'y':0.0, 'z':0.0}}
             cmd['linear']['x'] = dis * 0.35
             cmd['angular']['z'] = angle * 0.6
+            print(i)
+            print(angle)
             # if i == 3:
             #     cmd['linear']['x']= dis * 0.35
             #     cmd['angular']['z'] = angle * 0.6

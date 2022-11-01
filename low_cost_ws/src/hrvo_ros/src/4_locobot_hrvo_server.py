@@ -5,6 +5,7 @@ from re import L
 import rospy
 from std_srvs.srv import Empty
 from geometry_msgs.msg import Twist, PoseStamped
+from std_msgs.msg import Int64MultiArray
 from sensor_msgs.msg import Joy
 from nav_msgs.msg import Odometry
 from RVO import RVO_update, reach, compute_V_des, reach
@@ -21,7 +22,7 @@ import time
 from arg_robotics_tools  import websocket_rosbridge as socket
 import threading
 ###############global variable###########
-locobot_ip = ['192.168.50.20', '192.168.50.60', '192.168.50.40', '192.168.50.90']
+locobot_ip = ['192.168.50.90', '192.168.50.60', '192.168.50.40', '192.168.50.90']
 thread = []
 
 
@@ -34,14 +35,15 @@ class BoatHRVO(object):
     def __init__(self):
         self.node_name = rospy.get_name()
         rospy.loginfo("[%s] Initializing" % self.node_name)
-        #self.frame = "odom"
-        #self.frame1 = "odom"
-        #self.auto = 1
+        self.frame = "odom"
+        self.frame1 = "odom"
+        self.auto = 1
 
         #self.reset_world = rospy.ServiceProxy('/gazebo/reset_world', Empty)
         #self.reset_model = rospy.ServiceProxy(
         #    '/gazebo/set_model_state', SetModelState)
-
+        self.sub_robotmove = rospy.Subscriber('/robotmoveflag', Int64MultiArray, self.cb_robot_move)
+        self.robot_move = [1,1,1,1]
         # setup publisher
         #self.pub_v = rospy.Publisher("/wamv1/cmd_vel", Twist, queue_size=1)
         #self.sub_p3d = rospy.Subscriber(
@@ -109,6 +111,10 @@ class BoatHRVO(object):
         # timer
         self.timer = rospy.Timer(rospy.Duration(0.1), self.cb_hrvo)
 
+    def cb_robot_move(self, msg):
+        self.robot_move = msg.data
+
+
     def robot_odom(self, ip, boat_id):
         robot_socket = socket.ros_socket(ip, 9090)
         if boat_id == 0:
@@ -123,18 +129,19 @@ class BoatHRVO(object):
 
     def odom_callback1(self, message):
         self.boat_odom[0] = message
+        #print(self.boat_odom[0]['pose']['pose']['orientation'])
 
     def odom_callback2(self,message):
         self.boat_odom[1] = message
-
+        #print(self.boat_odom[1]['pose']['pose']['orientation'])
     
     def odom_callback3(self,message):
         self.boat_odom[2] = message
-  
+        #print(self.boat_odom[2]['pose']['pose']['orientation'])
 
     def odom_callback4(self,message):
         self.boat_odom[3] = message
-
+        #print(self.boat_odom[3]['pose']['pose']['orientation'])
 
 
     def cb_hrvo(self, event):
@@ -149,23 +156,25 @@ class BoatHRVO(object):
             self.position, v_des, self.velocity_detect, self.ws_model)
 
         for i in range(4):
-            dis, angle = self.process_ang_dis(
-                self.velocity[i][0], self.velocity[i][1], self.yaw[i])
-            ##p3d 0.35 0.8
-            cmd = {'linear':{'x':0.0, 'y':0.0, 'z':0.0},'angular':{'x':0.0, 'y':0.0, 'z':0.0}}
-            cmd['linear']['x'] = dis * 0.35
-            cmd['angular']['z'] = angle * 0.6
             print(i)
-            print(angle)
-            # if i == 3:
-            #     cmd['linear']['x']= dis * 0.35
-            #     cmd['angular']['z'] = angle * 0.6
-            self.cmd_drive[i] = cmd
+            if self.robot_move[i]==1:
+                #print(self.yaw[i])
+                dis, angle = self.process_ang_dis(
+                    self.velocity[i][0], self.velocity[i][1], self.yaw[i])
+                print(angle)
+                ##p3d 0.35 0.8
+                cmd = {'linear':{'x':0.0, 'y':0.0, 'z':0.0},'angular':{'x':0.0, 'y':0.0, 'z':0.0}}
+                cmd['linear']['x'] = dis * 0.35
+                cmd['angular']['z'] = angle *2
+            
+                # if i == 3:
+                #     cmd['linear']['x']= dis * 0.35
+                #     cmd['angular']['z'] = angle * 0.6
+                self.cmd_drive[i] = cmd
+            else :
+                cmd = {'linear':{'x':0.0, 'y':0.0, 'z':0.0},'angular':{'x':0.0, 'y':0.0, 'z':0.0}}
+                self.cmd_drive[i] = cmd
     
-        #self.pub_v.publish(self.cmd_drive[0])
-        #self.pub_v1.publish(self.cmd_drive[1])
-        #self.pub_v2.publish(self.cmd_drive[2])
-        #self.pub_v3.publish(self.cmd_drive[3])
 
     def publish_twist(self, robot_number):
         global locobot_ip
@@ -214,7 +223,6 @@ class BoatHRVO(object):
 
         dis = max(min(dis, 1), -1)
         angle = max(min(angle, 1), -1)
-
         return dis, angle
 
     def update_all(self):
@@ -232,6 +240,8 @@ class BoatHRVO(object):
                           self.boat_odom[i]['pose']['pose']['orientation']['w'])
             euler = tf.transformations.euler_from_quaternion(quaternion)
             self.yaw[i] = euler[2]
+            #print(i)
+            #print(self.yaw[i])
 
             # update velocity
             self.velocity_detect[i] = [self.boat_odom[i]['twist']['twist']['linear']['x'],
@@ -271,17 +281,17 @@ class BoatHRVO(object):
             self.auto = 0
             rospy.loginfo('go manual')
     
-    def cb_boat_odom(self, msg):
-        self.boat_odom[0] = msg
+    # def cb_boat_odom(self, msg):
+    #     self.boat_odom[0] = msg
 
-    def cb_boat1_odom(self, msg):
-        self.boat_odom[1] = msg
+    # def cb_boat1_odom(self, msg):
+    #     self.boat_odom[1] = msg
 
-    def cb_boat2_odom(self, msg):
-        self.boat_odom[2] = msg
+    # def cb_boat2_odom(self, msg):
+    #     self.boat_odom[2] = msg
 
-    def cb_boat3_odom(self, msg):
-        self.boat_odom[3] = msg
+    # def cb_boat3_odom(self, msg):
+    #     self.boat_odom[3] = msg
 
 
 if __name__ == "__main__":

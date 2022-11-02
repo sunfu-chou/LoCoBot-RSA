@@ -189,6 +189,12 @@ class UWB(UWB):
 
 # %% ../06_uwb.ipynb 13
 class UWB(UWB):
+    def reset(self) -> bool:
+        s = 'F,b0,,1'
+        if self.port != None:
+            ser = serial.Serial(self.port)
+            ser.write(s.encode())
+            
     def connect(self) -> bool:
         """Try to connect pozyx device.
 
@@ -200,9 +206,17 @@ class UWB(UWB):
             self.scan_port()
             if len(self._port_list) == 1:
                 self.port = self._port_list[0]
-                self._pozyx_handler = PozyxSerial(self.port)
-                self._status &= self._pozyx_handler.getNetworkId(self._network_id)
+                try:
+                    self._pozyx_handler = PozyxSerial(self.port)
+                    self._status &= self._pozyx_handler.getNetworkId(self._network_id)
+                    return self._status
+                except PozyxException as ex:
+                    print(ex)
+                    self.reset()
+                    return False
             elif len(self._port_list) == 0:
+                print('No Pozyx devices found')
+                self._status = PozyxConstants.STATUS_FAILURE
                 return False
             else:
                 return False
@@ -213,6 +227,7 @@ class UWB(UWB):
                 return True
             except PozyxException as ex:
                 print(ex)
+                self.reset()
                 return False
 
 

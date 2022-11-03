@@ -16,6 +16,7 @@ last_pose = [0.0, 0.0, 0.0]
 
 
 def uwb_error_handler():
+    rospy.logwarn("Pozyx UWB error, reseatring")
     s = 'F,b0,,1'
     import serial
     ser = serial.Serial(uwb.port)
@@ -59,9 +60,12 @@ def timer_callback(e):
 
 if __name__ == "__main__":
     rospy.init_node("uwb_localization", anonymous=False)
+    if uwb.connect():
+        rospy.loginfo("Pozyx UWB connected")
     if not uwb.connect():
-        print('Connect error')
+        rospy.loginfo('Connect error')
         exit()
+    
     uwb.load_env_config(rospy.get_param("~config_file_path"))
 
     uwb.height = 950

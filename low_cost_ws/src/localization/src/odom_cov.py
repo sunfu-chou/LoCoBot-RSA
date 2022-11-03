@@ -4,7 +4,7 @@ import rospy
 from nav_msgs.msg import Odometry
 
 def cb(msg):
-  msg.twist.covariance = [0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 
+  msg.twist.covariance = [0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 
                          0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
                          0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
                          0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 

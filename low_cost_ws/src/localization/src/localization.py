@@ -49,8 +49,8 @@ def timer_callback(e):
     pose.pose.pose.position.y = uwb.pose[1] / 1000.0
     pose.pose.pose.position.z = uwb.pose[2] / 1000.0
     pose.pose.pose.orientation.w = 1.0
-    pose.pose.covariance = [0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 
-                            0.0, 0.3, 0.0, 0.0, 0.0, 0.0, 
+    pose.pose.covariance = [1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 
+                            0.0, 1.5, 0.0, 0.0, 0.0, 0.0, 
                             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
                             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
                             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
@@ -61,6 +61,7 @@ def timer_callback(e):
 if __name__ == "__main__":
     rospy.init_node("uwb_localization", anonymous=False)
     if uwb.connect():
+        uwb.reset()
         rospy.loginfo("Pozyx UWB connected")
     if not uwb.connect():
         uwb.reset()

@@ -22,7 +22,7 @@ import time
 from arg_robotics_tools  import websocket_rosbridge as socket
 import threading
 ###############global variable###########
-locobot_ip = ['192.168.50.90', '192.168.50.60', '192.168.50.40', '192.168.50.90']
+locobot_ip = ['192.168.50.20', '192.168.50.40', '192.168.50.90', '192.168.50.60']
 thread = []
 
 
@@ -98,12 +98,12 @@ class BoatHRVO(object):
 
         thread.append(threading.Thread(target = self.publish_twist, args = (0,), daemon=True))
         thread.append(threading.Thread(target = self.publish_twist, args = (1,), daemon=True))
-        #thread.append(threading.Thread(target = self.publish_twist , args = (2,), daemon=True))
+        thread.append(threading.Thread(target = self.publish_twist , args = (2,), daemon=True))
         #thread.append(threading.Thread(target = self.publish_twist, args = (3,), daemon=True))
 
         thread.append(threading.Thread(target = self.robot_odom, args = (locobot_ip[0], 0), daemon=True))
         thread.append(threading.Thread(target = self.robot_odom, args = (locobot_ip[1], 1), daemon=True))
-        #thread.append(threading.Thread(target = self.robot_odom, args = (locobot_ip[2], 2), daemon=True))
+        thread.append(threading.Thread(target = self.robot_odom, args = (locobot_ip[2], 2), daemon=True))
         #thread.append(threading.Thread(target = self.robot_odom, args = (locobot_ip[3], 3), daemon=True))
         
         for i in thread:
@@ -164,8 +164,8 @@ class BoatHRVO(object):
                 print(angle)
                 ##p3d 0.35 0.8
                 cmd = {'linear':{'x':0.0, 'y':0.0, 'z':0.0},'angular':{'x':0.0, 'y':0.0, 'z':0.0}}
-                cmd['linear']['x'] = dis * 0.35
-                cmd['angular']['z'] = angle *2
+                cmd['linear']['x'] = dis * 0.2
+                cmd['angular']['z'] = angle *3
             
                 # if i == 3:
                 #     cmd['linear']['x']= dis * 0.35
@@ -182,7 +182,13 @@ class BoatHRVO(object):
         pub_v = client.publisher('/cmd_vel_mux/input/teleop', 'geometry_msgs/Twist')
         while True:
             client.pub(pub_v, self.cmd_drive[robot_number])
-            time.sleep(0.05)
+            if self.robot_move[robot_number]==1:
+                time.sleep(0.05)
+            elif self.robot_move[robot_number] == 0:
+                time.sleep(2)
+            else:
+                print(str(robot_number) + 'have error ')
+                time.sleep(20)
 
 
     def check_state(self):

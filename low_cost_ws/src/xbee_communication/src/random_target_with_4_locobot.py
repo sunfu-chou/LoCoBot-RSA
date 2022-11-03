@@ -37,11 +37,11 @@ pose3 = {'x':0, 'y':500}
 pose4 = {'x':500, 'y':500}
 
 thread = []
-locobot_ip = ['192.168.50.90', '192.168.50.60', '192.168.50.40', '192.168.50.20']
+locobot_ip = ['192.168.50.20', '192.168.50.40', '192.168.50.90', '192.168.50.60']
 
 robot_flag1 = False
 robot_flag2 = False
-robot_flag3 = True #False
+robot_flag3 = False
 robot_flag4 = True #False
 
 class robot_status(object):
@@ -57,7 +57,7 @@ class robot_status(object):
         self.machine = "wamv"
         self.boat = "boat"
         self.boat1 = "wamv"
-        self.r = 0.5
+        self.r = 0.15
 
         self.pub_status = rospy.Publisher( "/"+self.machine+"/target", targetpoint, queue_size=1)
         self.pub_points = rospy.Publisher("visualization_marker", MarkerArray, queue_size=1)
@@ -77,11 +77,11 @@ class robot_status(object):
         self.wamv2_has_target = 0
         self.wamv2_target_point = 0
 
-        # #self.sub_wamv3 = rospy.Subscriber("/"+self.boat+"3/pose",Odometry,self.cb_wamv3,queue_size=1)
-        # thread.append(threading.Thread(target = self.pose3, args=(locobot_ip[2],), daemon=True))
-        # self.pub_wamv3 = rospy.Publisher("/"+self.boat1+"3/move_base_simple/goal", PoseStamped, queue_size=1)
-        # self.wamv3_has_target = 0
-        # self.wamv3_target_point = 0
+        #self.sub_wamv3 = rospy.Subscriber("/"+self.boat+"3/pose",Odometry,self.cb_wamv3,queue_size=1)
+        thread.append(threading.Thread(target = self.pose3, args=(locobot_ip[2],), daemon=True))
+        self.pub_wamv3 = rospy.Publisher("/"+self.boat1+"3/move_base_simple/goal", PoseStamped, queue_size=1)
+        self.wamv3_has_target = 0
+        self.wamv3_target_point = 0
 
         # #self.sub_wamv4 = rospy.Subscriber("/"+self.boat+"4/pose",Odometry,self.cb_wamv4,queue_size=1)
         # thread.append(threading.Thread(target = self.pose4, args=(locobot_ip[3],), daemon=True))
@@ -91,36 +91,37 @@ class robot_status(object):
 
         self.Markers = MarkerArray()
         self.Markers.markers = []
-        self.point = 4
+        self.point = 8
         self.target = targetpoint()
         array = [[0.0 for a in range (3)] for b in range (self.point)]
         
         #array = [[1.5, 2.1, 0], [1.5, 1.2, 0], ] # [5.5, 2.0, 0], [5.5, 5.0, 0], [1.8, 5.0, 0]
         
-        array = [[3.0, 2.1, 0], [3.0, 1.2, 0], [4.0, 2.1, 0], [4.0, 1.2, 0] ,[2.0 , 1.5 ,0]]
+        #array = [[3.0, 2.1, 0], [3.0, 1.2, 0], [4.0, 2.1, 0], [4.0, 1.2, 0] ,[2.0 , 1.5 ,0]]
+        array = [[2.2, 3.6, 0], [4.5, 3.0, 0], [1.0, 4.9, 0], [2.3, 5.1, 0], [3.5, 4.3, 0], [5.5, 4.1, 0], [4.7, 5.9, 0], [3.0, 6.0, 0]]
 
         for i in range(self.point):
             self.target.data_x.append(array[i][0])
             self.target.data_y.append(array[i][1])
             self.target.data_flag.append(0)
-            # self.marker = Marker()
-            # self.marker.header.stamp = rospy.Time.now()
-            # self.marker.header.frame_id = 'odom'
-            # self.marker.type = self.marker.SPHERE
-            # self.marker.action = self.marker.ADD
-            # self.marker.pose.orientation.w = 1
-            # self.marker.pose.position.x = array[i][0] 
-            # self.marker.pose.position.y = array[i][1]
-            # self.marker.id = i
-            # i = i+1
-            # self.marker.scale.x = 1
-            # self.marker.scale.y = 1
-            # self.marker.scale.z = 1
-            # self.marker.color.a = 1.0
-            # self.marker.color.r = 0
-            # self.marker.color.g = 1
-            # self.marker.color.b = 0
-            # self.Markers.markers.append(self.marker)
+            self.marker = Marker()
+            self.marker.header.stamp = rospy.Time.now()
+            self.marker.header.frame_id = 'odom'
+            self.marker.type = self.marker.SPHERE
+            self.marker.action = self.marker.ADD
+            self.marker.pose.orientation.w = 1
+            self.marker.pose.position.x = array[i][0] 
+            self.marker.pose.position.y = array[i][1]
+            self.marker.id = i
+            i = i+1
+            self.marker.scale.x = 1
+            self.marker.scale.y = 1
+            self.marker.scale.z = 1
+            self.marker.color.a = 1.0
+            self.marker.color.r = 0
+            self.marker.color.g = 1
+            self.marker.color.b = 0
+            self.Markers.markers.append(self.marker)
         self.robot_status_data = Float32MultiArray(data = array)
 
         
@@ -162,7 +163,7 @@ class robot_status(object):
 
     def pose1(self, locobot_ip):
         socket_sensor = socket.ros_socket(locobot_ip, 9090)
-        socket_sensor.subscriber('/uwb_pose' , self.pose1_callback, 500)
+        socket_sensor.subscriber('/odometry/filtered' , self.pose1_callback, 500)
 
     ####pose2####
     def pose2_callback(self, message):
@@ -176,7 +177,7 @@ class robot_status(object):
 
     def pose2(self, locobot_ip):
         socket_sensor = socket.ros_socket(locobot_ip, 9090)
-        socket_sensor.subscriber('/uwb_pose' , self.pose2_callback, 100)
+        socket_sensor.subscriber('/odometry/filtered' , self.pose2_callback, 100)
     
     ####pose3####
     def pose3_callback(self, message):
@@ -185,10 +186,12 @@ class robot_status(object):
         pose3['x'] = message['pose']['pose']['position']['x']
         pose3['y'] = message['pose']['pose']['position']['y']
         robot_flag3 = True
+        print('robot3')
+        print(pose3)
 
     def pose3(self, locobot_ip):
         socket_sensor = socket.ros_socket(locobot_ip, 9090)
-        socket_sensor.subscriber('/uwb_pose' , self.pose3_callback, 100)
+        socket_sensor.subscriber('/odometry/filtered' , self.pose3_callback, 100)
 
     ####pose4####
     def pose4_callback(self, message):
@@ -331,7 +334,7 @@ class robot_status(object):
             if robot_flag1 and robot_flag2 and robot_flag3 and robot_flag4:
                 self.cb_wamv1()
                 self.cb_wamv2()
-                # self.cb_wamv3()
+                self.cb_wamv3()
                 # self.cb_wamv4()
                 time.sleep(0.2)
                 self.robot_flag.data = self.robotmove
@@ -365,43 +368,43 @@ class robot_status(object):
         print('---------------publish----------------')
         #print(self.robot_status.data)
         self.pub_status.publish(self.target)
-        #self.pub_points.publish(self.Markers)
-        # marker = Marker()
-        # marker.header.stamp = rospy.Time.now()
-        # marker.header.frame_id = 'odom'
-        # marker.type = marker.LINE_STRIP
-        # marker.action = marker.ADD
-        # circumference = []
-        # p = Point()
-        # p.x = 30
-        # p.y = -190
-        # p.z = 0.1
-        # p1 = Point()
-        # p1.x = 230
-        # p1.y = -140
-        # p1.z = 0.1
-        # p2 = Point()
-        # p2.x = 30
-        # p2.y = -140
-        # p2.z = 0.1
-        # p3 = Point()
-        # p3.x = 230
-        # p3.y = -190
-        # p3.z = 0.1
-        # circumference.append(p)
-        # circumference.append(p3)
-        # circumference.append(p1)
-        # circumference.append(p2)
-        # circumference.append(p)
+        self.pub_points.publish(self.Markers)
+        marker = Marker()
+        marker.header.stamp = rospy.Time.now()
+        marker.header.frame_id = 'odom'
+        marker.type = marker.LINE_STRIP
+        marker.action = marker.ADD
+        circumference = []
+        p = Point()
+        p.x = 30
+        p.y = -190
+        p.z = 0.1
+        p1 = Point()
+        p1.x = 230
+        p1.y = -140
+        p1.z = 0.1
+        p2 = Point()
+        p2.x = 30
+        p2.y = -140
+        p2.z = 0.1
+        p3 = Point()
+        p3.x = 230
+        p3.y = -190
+        p3.z = 0.1
+        circumference.append(p)
+        circumference.append(p3)
+        circumference.append(p1)
+        circumference.append(p2)
+        circumference.append(p)
 
-        # marker.pose.orientation.w = 1
-        # marker.points = circumference
-        # marker.scale.x = 0.05
-        # marker.color.a = 1.0
-        # marker.color.r = 0
-        # marker.color.g = 1
-        # marker.color.b = 0
-        #self.pub_position_circle.publish(marker)
+        marker.pose.orientation.w = 1
+        marker.points = circumference
+        marker.scale.x = 0.05
+        marker.color.a = 1.0
+        marker.color.r = 0
+        marker.color.g = 1
+        marker.color.b = 0
+        self.pub_position_circle.publish(marker)
 
     def who_am_I(self,data):
             ret_byte = subprocess.check_output(['ifconfig'])

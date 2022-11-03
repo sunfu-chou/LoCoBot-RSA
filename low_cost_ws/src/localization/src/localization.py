@@ -63,6 +63,7 @@ if __name__ == "__main__":
     if uwb.connect():
         rospy.loginfo("Pozyx UWB connected")
     if not uwb.connect():
+        uwb.reset()
         rospy.loginfo('Connect error')
         exit()
     

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
 
 
 from arg_robotics_tools import websocket_rosbridge as socket
@@ -10,90 +9,82 @@ import threading
 import time
 import os
 
-# In[ ]:
 
-
-data = {'linear': {'x': 0, 'y': 0, 'z': 0}, 'angular': {'x': 0, 'y': 0, 'z': 0}}
-
-
-# In[ ]:
-
-
-def key_publish():
-    global data
-    ###########code here #############
-    #use socket.ros_socket() generate a connection to your rosbridge server
-    #generate a publisher
-    #topic name is 'cmd_vel_mux/input/teleop', type is 'geometry_msgs/Twist'
-    ##################################
-    
-    while True:
-    ###########code here #############
-    #use pub to publish data with publisher 
-    #you can change the publish frequency by changing number in sleep()
-    ##################################
-
-        time.sleep(5)
-
-def on_press(key):
-    ###code here ###
-    #you need to change data when you push up down left right key
-    # linear x do not exceed 0.5
-    # angular z do not exceed 1 (if robot no rotate z need bigger)
-    global data
-    try:
-        if key == keyboard.Key.up:
-            print('up')
-            
-        elif key == keyboard.Key.down:
-            print('down')
-            
-        elif key == keyboard.Key.left:
-            print('left')
-            
-        elif key == keyboard.Key.right:
-            print('right')
-            
-        else:
-            pass
-    except:
-        print('Error')
-    ####################
-    
-    
-def on_release(key):
-    #you need to change data to no key input when you release the key  
-    global data
-    ###code here###
-    
-    if key == keyboard.Key.esc:
-        os._exit(0)
+class base_control():
+    def __init__(self, ip):
+        self.data = {'linear': {'x': 0.0, 'y': 0.0, 'z': 0.0}, 'angular': {'x': 0.0, 'y': 0.0, 'z': 0.0}}
+        self.ip = ip
+        #################YOUR CODE HERE#####################
+        #you need create a ros_socket connection to ip and port 9090 
+        #and create a publisher by your ros_socket connection to topic named 'cmd_vel_mux/input/teleop', and its type is 'geometry_msgs/Twist'
         
+        ####################################################
+        t = threading.Thread(target=self.pub)
+        t.start()
+
+    def pub(self):
+        while True:
+            #################YOUR CODE HERE#####################
+            #you need to publish your data by your publisher with ros_socket connection
+            
+            #print(self.data)
+            ####################################################
+            time.sleep(0.1) #you can change the sleep time to control the publish rate
+
+    def on_press(self, key):
+        try:
+            #####the limit of the robot#####
+            #linear velocity: -2 ~ 2
+            #angular velocity: -0.5 ~ 0.5
+            ################################
+
+            if key == keyboard.Key.up:
+                print('up')
+                #################YOUR CODE HERE#####################
+                #you need to change the data when up arrow key is press
+                
+                ####################################################
+            elif key == keyboard.Key.down:
+                print('down')
+                #################YOUR CODE HERE#####################
+                #you need to change the data when down arrow key is press
+                
+                ####################################################
+            elif key == keyboard.Key.left:
+                print('left')
+                #################YOUR CODE HERE#####################
+                #you need to change the data when left arrow key is press
+                
+                ####################################################
+            elif key == keyboard.Key.right:
+                print('right')
+                #################YOUR CODE HERE#####################
+                #you need to change the data when right arrow key is press
+                
+                ####################################################
+            else:
+                pass
+        except:
+            print('Error')
+
+    def on_release(self, key):
+        #################YOUR CODE HERE#####################
+        #you need to change the data back to 0 (stop) when key is release
+        
+        ####################################################
+            #print('stop')
+        if key == keyboard.Key.esc:
+            # Stop listener
+            os._exit(0)
 
 
-# In[ ]:
+if __name__ == '__main__':
+    # Collect events until released
+    ip = input('please input your master ip:')
+    my_base_control = base_control(ip)
+    with keyboard.Listener(on_press=my_base_control.on_press, on_release=my_base_control.on_release) as listener:
+        listener.join()
 
-
-# Collect events until released
-t = threading.Thread(target = key_publish)
-t.start()
-with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-    listener.join()
-
-# ...or, in a non-blocking fashion:
-listener = keyboard.Listener(on_press=on_press,on_release=on_release)
-listener.start()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    # ...or, in a non-blocking fashion:
+    listener = keyboard.Listener(on_press=my_base_control.on_press, on_release=my_base_control.on_release)
+    listener.start()

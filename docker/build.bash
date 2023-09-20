@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPOSITORY="sunfuchou/rsa"
+REPOSITORY="argnctu/rsa"
 TAG="amd64"
 
 IMG="${REPOSITORY}:${TAG}"

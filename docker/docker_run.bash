@@ -3,7 +3,7 @@
 ARGS=("$@")
 
 NAME=rsa
-REPOSITORY="sunfuchou/rsa"
+REPOSITORY="argnctu/rsa"
 TAG="amd64"
 REPO_NAME=LoCoBot-RSA
 

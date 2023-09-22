@@ -37,6 +37,14 @@ class Animal(object):
 ## Inheritance example 
 #################################
 class Cat(Animal):
+    '''
+    Cat class inherits from Animal class
+
+    Attributes: 
+        name
+        age
+    Methods: speak
+    '''
     def speak(self):
         print("meow")
     def __str__(self):
@@ -71,17 +79,6 @@ class Person(Animal):
         print(abs(diff), "year difference")
     def __str__(self):
         return "person:"+str(self.name)+":"+str(self.age)
-
-print("\n---- person tests ----")
-p1 = Person("jack", 30)
-p2 = Person("jill", 25)
-print(p1.get_name())
-print(p1.get_age())
-print(p2.get_name())
-print(p2.get_age())
-print(p1)
-p1.speak()
-p1.age_diff(p2)
 
 
 #################################

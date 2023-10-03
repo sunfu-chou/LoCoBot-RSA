@@ -51,10 +51,13 @@ RUN pip3 install --upgrade pip \
     && pip3 install \
         python_tsp \
         pypozyx \
-        pytest
+        pytest \
+        scipy \
+        opencv-python \
+        dbg
 
 RUN apt-get -o Acquire::ForceIPv4=true update && apt-get -yq dist-upgrade \
-    && apt-get -o Acquire::ForceIPv4=true install -yq --no-install-recommends \
-    ros-${ROS_DISTRO}-robot-localization
+&& apt-get -o Acquire::ForceIPv4=true install -yq --no-install-recommends \
+ros-${ROS_DISTRO}-robot-localization
 
 RUN echo 'source /opt/ros/noetic/setup.bash' >> ~/.bashrc

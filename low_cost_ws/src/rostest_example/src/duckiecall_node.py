@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import rospy
 from rostest_example.Quacker import *
 from std_msgs.msg import String, Int32
@@ -20,6 +20,7 @@ class DuckiecallNode(object):
         self.quacker = Quacker()
 
         rospy.loginfo("[%s] has started", self.node_name)
+        breakpoint()
 
     def quacksCallback(self, msg_quacks):
         msg_duckiecall = String()

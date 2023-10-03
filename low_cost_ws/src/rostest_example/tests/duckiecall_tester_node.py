@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import rospy
 import unittest, rostest
 from rostest_example.Quacker import *

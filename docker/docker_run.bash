@@ -4,7 +4,7 @@ ARGS=("$@")
 
 NAME=rsa
 REPOSITORY="argnctu/rsa"
-TAG="amd64"
+TAG="latest"
 REPO_NAME=LoCoBot-RSA
 
 IMG="${REPOSITORY}:${TAG}"

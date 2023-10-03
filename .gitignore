@@ -4,3 +4,4 @@ devel/
 logs
 __pycache__/
 tags
+*.pyc

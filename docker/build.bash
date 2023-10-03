@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 REPOSITORY="argnctu/rsa"
-TAG="amd64"
+TAG="latest"
 
 IMG="${REPOSITORY}:${TAG}"
 

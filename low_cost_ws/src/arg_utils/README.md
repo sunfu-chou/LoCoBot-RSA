@@ -15,3 +15,10 @@ sys.path.append(
                  '<path>'))
 ```
 and make sure your < path > is pointing correctly to your python package.
+### testing python package
+after runing the docker
+```
+$ cd ~/LoCoBot-RSA/low_cost_ws/src/rostest_example/scripts/
+$ pytest test_import_me.py
+$ python3 testing_pypkg_from_arg_utils.py
+```

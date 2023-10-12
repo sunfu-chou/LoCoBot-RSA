@@ -3,13 +3,14 @@
 import rospy
 from sensor_msgs.msg import Imu
 
+
 def cb(msg):
   msg.linear_acceleration_covariance = [0.5, 0.0, 0.0, 
                                         0.0, 0.0, 0.0, 
                                         0.0, 0.0, 0.0]
   msg.angular_velocity_covariance = [0.0, 0.0, 0.0, 
                                      0.0, 0.0, 0.0, 
-                                    0.0, 0.0, 0.1]
+                                     0.0, 0.0, 0.1]
   odom_pub.publish(msg)
   
 if __name__ == '__main__':

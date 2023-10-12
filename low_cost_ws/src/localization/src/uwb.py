@@ -170,6 +170,8 @@ class UWB():
             except TypeError:
                 pass
         print(f'port_list: {port_list}')
+        if len(port_list) == 1:
+            return port_list[0]
         for port in port_list:
             try:
                 pozyx_handler = PozyxSerial(port)

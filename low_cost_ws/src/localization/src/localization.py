@@ -67,8 +67,9 @@ def timer_callback(e):
 
 if __name__ == "__main__":
     rospy.init_node("uwb_localization", anonymous=False)
-    if uwb.connect():
-        rospy.loginfo("Pozyx UWB connected")
+
+    uwb.connect()
+    
     while not uwb.connect() and not rospy.is_shutdown():
         validate = uwb.validate()
         if not validate:
@@ -83,5 +84,5 @@ if __name__ == "__main__":
     uwb.write_env_config()
     pose_pub = rospy.Publisher("uwb_pose", PoseWithCovarianceStamped, queue_size=10)
     distances_pub = rospy.Publisher("uwb_distances", Float64MultiArray, queue_size=10)
-    localization_timer = rospy.Timer(rospy.Duration(0.05), timer_callback)
+    localization_timer = rospy.Timer(rospy.Duration(0.2), timer_callback)
     rospy.spin()

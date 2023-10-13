@@ -55,7 +55,9 @@ RUN pip3 install --upgrade pip \
         pytest \
         scipy \
         opencv-python \
-        dbg
+        dbg \
+        pytransform3d
+
 
 RUN apt-get -o Acquire::ForceIPv4=true update && apt-get -yq dist-upgrade \
 && apt-get -o Acquire::ForceIPv4=true install -yq --no-install-recommends \

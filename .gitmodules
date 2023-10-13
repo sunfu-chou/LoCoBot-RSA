@@ -1,0 +1,6 @@
+[submodule "low_cost_ws/src/apriltags_ros_test"]
+	path = low_cost_ws/src/apriltags_ros_test
+	url = git@github.com:Sensing-Intelligent-System/apriltags_ros_test.git
+[submodule "low_cost_ws/src/apriltags_ros"]
+	path = low_cost_ws/src/apriltags_ros
+	url = git@github.com:Sensing-Intelligent-System/apriltags_ros.git

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
+import time
+
 import rospy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from std_msgs.msg import Float64MultiArray
-
 from uwb import UWB
-import time
 
 uwb = UWB()
 
@@ -28,6 +28,13 @@ def uwb_error_handler():
 def timer_callback(e):
     now = rospy.Time.now()
 
+    validate = uwb.validate()
+    if not validate:
+        rospy.logwarn_throttle(1, uwb.network_id_str + " UWB not validated")
+        uwb.connect()
+        if uwb.validate():
+            rospy.logwarn(uwb.network_id_str + "UWB has reconnected")
+
     uwb.localize_2_5D()
     uwb.range_all()
 
@@ -35,13 +42,13 @@ def timer_callback(e):
 
     distances_pub.publish(distances)
 
-    if uwb.pose[0] == 0 and uwb.pose[1] == 0 and uwb.pose[2] == 0:
-        uwb_error_handler()
-        return
+    # if uwb.pose[0] == 0 and uwb.pose[1] == 0 and uwb.pose[2] == 0:
+    #     uwb_error_handler()
+    #     return
 
-    if uwb.pose[0] == last_pose[0] and uwb.pose[1] == last_pose[1] and uwb.pose[2] == last_pose[2]:
-        uwb_error_handler()
-        return
+    # if uwb.pose[0] == last_pose[0] and uwb.pose[1] == last_pose[1] and uwb.pose[2] == last_pose[2]:
+    #     uwb_error_handler()
+    #     return
 
     pose.header.stamp = now
     pose.header.frame_id = "map"
@@ -60,13 +67,16 @@ def timer_callback(e):
 
 if __name__ == "__main__":
     rospy.init_node("uwb_localization", anonymous=False)
-    if uwb.connect():
-        uwb.reset()
-        rospy.loginfo("Pozyx UWB connected")
-    if not uwb.connect():
-        uwb.reset()
-        rospy.loginfo('Connect error')
-        exit()
+
+    uwb.connect()
+    
+    while not uwb.connect() and not rospy.is_shutdown():
+        validate = uwb.validate()
+        if not validate:
+            rospy.logwarn_throttle(1, uwb.network_id_str + " UWB not validated")
+            uwb.connect()
+            if uwb.validate():
+                rospy.logwarn(uwb.network_id_str + "UWB has reconnected")
     
     uwb.load_env_config(rospy.get_param("~config_file_path"))
 
@@ -74,5 +84,5 @@ if __name__ == "__main__":
     uwb.write_env_config()
     pose_pub = rospy.Publisher("uwb_pose", PoseWithCovarianceStamped, queue_size=10)
     distances_pub = rospy.Publisher("uwb_distances", Float64MultiArray, queue_size=10)
-    localization_timer = rospy.Timer(rospy.Duration(0.05), timer_callback)
+    localization_timer = rospy.Timer(rospy.Duration(0.2), timer_callback)
     rospy.spin()

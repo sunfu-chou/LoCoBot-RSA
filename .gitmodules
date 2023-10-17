@@ -4,3 +4,6 @@
 [submodule "low_cost_ws/src/apriltags_ros"]
 	path = low_cost_ws/src/apriltags_ros
 	url = git@github.com:Sensing-Intelligent-System/apriltags_ros.git
+[submodule "low_cost_ws/src/arg_utils"]
+	path = low_cost_ws/src/arg_utils
+	url = git@github.com:ARG-NCTU/arg_utils.git

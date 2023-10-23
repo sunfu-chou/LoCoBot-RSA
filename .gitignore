@@ -3,3 +3,5 @@ devel/
 .catkin_tools
 logs
 __pycache__/
+tags
+*.pyc

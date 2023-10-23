@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 NAME=locobot_rsa
-REPOSITORY="sunfuchou/rsa"
-TAG="amd64"
+REPOSITORY="argnctu/rsa"
+TAG="latest"
 REPO_NAME=LoCoBot-RSA
 
 IMG="${REPOSITORY}:${TAG}"

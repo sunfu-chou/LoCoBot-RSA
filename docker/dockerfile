@@ -25,33 +25,44 @@ RUN echo "${USER}:rsa" | chpasswd
 
 RUN apt-get -o Acquire::ForceIPv4=true update && apt-get -yq dist-upgrade \
     && apt-get -o Acquire::ForceIPv4=true install -yq --no-install-recommends \
-    locales \
-    curl \
-    cmake \
-    make \
-    git \
-    vim \
-    wget \
-    sudo \
-    lsb-release \
-    build-essential \
-    net-tools \
-    apt-utils \
-    software-properties-common \
-    dialog \
-    libffi-dev \
-    python3-dev \
-    python3-pip \
-    python3-setuptools \
-    apt-transport-https \
-    libglew-dev
+        locales \
+        curl \
+        cmake \
+        make \
+        git \
+        vim \
+        wget \
+        sudo \
+        lsb-release \
+        build-essential \
+        net-tools \
+        apt-utils \
+        software-properties-common \
+        dialog \
+        libffi-dev \
+        python3-dev \
+        python3-pip \
+        python3-setuptools \
+        apt-transport-https \
+        libglew-dev \
+        python3-tk
 
 RUN pip3 install --upgrade pip \
     && pip3 install --upgrade setuptools \
-    && pip3 install python_tsp pypozyx
+    && pip3 install \
+        python_tsp \
+        pypozyx \
+        pytest \
+        scipy \
+        opencv-python \
+        dbg \
+        pytransform3d \
+        wget \
+        apriltag
+
 
 RUN apt-get -o Acquire::ForceIPv4=true update && apt-get -yq dist-upgrade \
-    && apt-get -o Acquire::ForceIPv4=true install -yq --no-install-recommends \
-    ros-${ROS_DISTRO}-robot-localization
+&& apt-get -o Acquire::ForceIPv4=true install -yq --no-install-recommends \
+ros-${ROS_DISTRO}-robot-localization
 
 RUN echo 'source /opt/ros/noetic/setup.bash' >> ~/.bashrc
